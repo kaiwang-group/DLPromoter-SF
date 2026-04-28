@@ -51,7 +51,7 @@ We define the multimodal model for the **DLPromoter-SF** method in the file `mod
 - The statistical feature extraction module is implemented based on the FeedForward networks (FFN) and a gating mechanism to process statistical data.
 The model can be trained using the file `train.py`.
 
-### Model testing
+### Model Testing
 - Run `test.py` using the new .pth and new .pth model weights:run_config.json, and extra_norm.json obtained from the `train.py` output.
 
 
