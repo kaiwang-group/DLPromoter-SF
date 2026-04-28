@@ -1,0 +1,75 @@
+# DLPromoter-SF:A Deep Learning-Based Approach of Predicting Saccharomyces cerevisiae Promoter Strength by Integrating Biological Statistical Features
+
+## Overview
+
+```DLPromoter-SF``` is a deep learning approach that combines sequence and statistical features to predict promoter strength in Saccharomyces cerevisiae. The method utilizes both one-hot encoding and statistical feature encoding as inputs to extract sequence information, subsequently employing a three-stage training process and ensemble learning for final prediction.
+
+```DLPromoter-SF``` consists of three modules: the Sequence Feature Extraction Module,  Statistical Feature Extraction Module,  Feature Fusion and Output Module.The Sequence Feature Extraction module utilizes a multi-scale Convolutional Neural Network (CNN) integrated with Squeeze-and-Excitation (SE) attention mechanisms, alongside a Transformer encoder also featuring SE attention, to capture sequence-level information. The Statistical Feature Extraction module leverages FeedForward networks (FFN) and a gating mechanism to process statistical data. Finally, the Fusion and Output module employs Feature-wise Linear Modulation (FiLM) to facilitate effective feature integration, using a Multi-Layer Perceptron (MLP) to generate the predicted promoter strength.
+
+The overall framework of ```DLPromoter-SF``` is shown in the following figure.
+
+![BERTGIN-EC Model Architecture](https://github.com/huajiqing23/BERTGIN-EC/blob/main/Model%20Architecture.png)
+
+
+## Description
+
+The project includes the following core files and directory structure:
+- The folder `dataset` contains the directory for storing the raw reaction data utilized in the training, testing andof DLPromoter-SF.
+- The file `model.py` contains the definition of the multi-modal fusion model for DLPromoter-SF.
+- The file `train.py` contains the script for training the DLPromoter-SF model.
+- The file `test.py` contains the script for testing the DLPromoter-SF model.
+- The file `best_model.pth`、 `best_S1_full.pth`、`best_S2_tail_head.pth` and `best_S3_unfreeze_tiny.pth`contains the script for the best model pth of DLPromoter-SF.
+- The file `extra_norm.json` and `run_config.json` contains the script for the best model training configurations of DLPromoter-SF.
+
+The datasets processed with 5-fold cross-validation and the trained models can be accessed [here](https://pan.baidu.com/s/1AeTamOZOdDfgRH7D_V6vNA?pwd=3us4).
+
+
+## System Requirements
+
+The proposed ```DLPromoter-SF``` has been implemented, trained, and tested by using `Python 3.10` and `PyTorch 2.8.0` with `CUDA 12.1` and an `NVIDIA RTX4090` graphics card.
+
+The package depends on the Python scientific stack:
+```
+Python： 3.10.19
+torch： 2.8.0
+Transformers：  4.57.1 
+torch-geometric： 2.3.0.post1 
+RDKit： 2025.09.1 
+scikit-learn ： 1.7.2
+pandas:  2.3.3 
+numpy : 2.4.6 
+tqdm:  4.67.1
+networkx: 3.4.2
+scipy:  1.15.2  
+```
+
+## Usage
+
+### Datasets
+
+The dataset of enzyme-catalyzed reactions containing 62,000 biological reactions and their corresponding enzyme EC numbers extracted from four databases (Rhea, BRENDA, PathBank, MetaNetX) is available [here](https://github.com/rxn4chemistry/biocatalysis-model/tree/main/data).
+
+### Data Processing
+Raw data preprocessing can be performed using the `preprocess.py` script, including:
+- Extraction of EC numbers as label information;
+- Conversion of reaction SMILES sequences to molecular graphs;
+- Random five-fold cross-validation splitting of the dataset;
+- Further formatting of the data to be directly loadable by the model.
+
+### Model Training
+We define the multimodal model for the **BERTGIN-EC** method in the file `multimodal_model.py`, where:
+- The sequence feature extraction module is implemented based on the pre-trained model ChemBERTa.
+- The graph feature extraction module is implemented based on the Graph Isomorphism Network (GIN).
+
+Multi-dimensional features are extracted separately from reaction SMILES and molecular structures. The pre-trained ChemBERTa model is available at [seyonec/ChemBERTa_zinc250k_v2_40k](https://huggingface.co/seyonec/ChemBERTa_zinc250k_v2_40k).
+
+The model can be trained using the file `train.py`, and then tested using the file `test.py`.
+
+
+### Ablation Study
+We define the single-modal models **BERT-EC** and **GIN-EC** (derived from the **BERTGIN-EC** method) in the file `ablation_model.py`.
+
+Both modal models can be trained in one go using the file `train_ablation.py`.
+
+
+```
