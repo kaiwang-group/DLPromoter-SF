@@ -21,33 +21,28 @@ The project includes the following core files and directory structure:
 - The file `best_model.pth`、 `best_S1_full.pth`、`best_S2_tail_head.pth` and `best_S3_unfreeze_tiny.pth`contains the script for the best model pth of DLPromoter-SF.
 - The file `extra_norm.json` and `run_config.json` contains the script for the best model training configurations of DLPromoter-SF.
 
-The datasets processed with 5-fold cross-validation and the trained models can be accessed [here](https://pan.baidu.com/s/1AeTamOZOdDfgRH7D_V6vNA?pwd=3us4).
-
-
 ## System Requirements
 
-The proposed ```DLPromoter-SF``` has been implemented, trained, and tested by using `Python 3.10` and `PyTorch 2.8.0` with `CUDA 12.1` and an `NVIDIA RTX4090` graphics card.
+The proposed ```DLPromoter-SF``` has been implemented, trained, and tested by using `Python 3.8` and `PyTorch 2.4.1` with `CUDA 12.1` and an `NVIDIA RTX4090` graphics card.
 
 The package depends on the Python scientific stack:
 ```
-Python： 3.10.19
-torch： 2.8.0
-Transformers：  4.57.1 
-torch-geometric： 2.3.0.post1 
-RDKit： 2025.09.1 
-scikit-learn ： 1.7.2
-pandas:  2.3.3 
-numpy : 2.4.6 
-tqdm:  4.67.1
-networkx: 3.4.2
-scipy:  1.15.2  
+Python： 3.8.20
+torch： 2.4.1
+Transformers：  4.46.3 
+scikit-learn ： 1.3.2
+pandas:  1.5.0 
+numpy : 1.23.5 
+tqdm:  4.46.1
+scipy:  1.9.3  
 ```
 
 ## Usage
 
 ### Datasets
 
-The dataset of enzyme-catalyzed reactions containing 62,000 biological reactions and their corresponding enzyme EC numbers extracted from four databases (Rhea, BRENDA, PathBank, MetaNetX) is available [here](https://github.com/rxn4chemistry/biocatalysis-model/tree/main/data).
+The dataset of a large-scale dataset comprising 162,982 80-bp Saccharomyces cerevisiae promoter sequences and their respective strength is available [here](https://github.com/RK2627/PromoDGDE/tree/main/Data/SC).
+The dataset of a small-scale dataset comprising 63,468 80-bp Saccharomyces cerevisiae promoter sequences and their respective strength is available [here](https://github.com/1edv/evolution/blob/master/manuscript_code/model/reproduce_test_data_performance).
 
 ### Data Processing
 Raw data preprocessing can be performed using the `preprocess.py` script, including:
