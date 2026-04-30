@@ -313,13 +313,15 @@ class Trainer95TryEMA:
         self.run_dir = os.path.join(save_root, f"{run_name}_{ktag}_{ts}")
         os.makedirs(self.run_dir, exist_ok=True)
 
-        self.best_path = os.path.join(self.run_dir, "best_model.pth")
+        # 修改这里：将 best_model.pth 改为 trained_model.pth
+        self.model_path = os.path.join(self.run_dir, "trained_model.pth")
         self.log_path = os.path.join(self.run_dir, "train_log.txt")
         self.cfg_path = os.path.join(self.run_dir, "run_config.json")
         self.final_metrics_path = os.path.join(self.run_dir, "val_metrics.json")
 
         # ---- load data
         seq_train, y_train = load_csv(train_csv)
+
         train_oh_list = [one_hot_encode(clean_seq(s)) for s in seq_train]
 
         self.max_len = max(m.shape[0] for m in train_oh_list)
@@ -336,7 +338,6 @@ class Trainer95TryEMA:
             sd = F_train[tr_idx].std(axis=0, keepdims=True) + 1e-6
             F_train = (F_train - mu) / sd
 
-            # 这里保存了训练集的均值和方差，供测试集使用
             self.extra_norm = {"mu": mu.flatten().tolist(), "sd": sd.flatten().tolist()}
             with open(os.path.join(self.run_dir, "extra_norm.json"), "w", encoding="utf-8") as f:
                 json.dump(self.extra_norm, f, ensure_ascii=False, indent=2)
@@ -450,7 +451,6 @@ class Trainer95TryEMA:
             self.ema.copy_from(self.model)
 
     def _train_stage(self, opt, loss_fn, epochs, patience, name, freeze_backbone: bool):
-        # freeze backbone or not
         for p in self.model.backbone_parameters():
             p.requires_grad = (not freeze_backbone)
         for p in self.model.head_parameters():
@@ -458,7 +458,7 @@ class Trainer95TryEMA:
 
         best_r2 = -1e18
         bad = 0
-        best_path = os.path.join(self.run_dir, f"best_{name}.pth")
+        stage_best_path = os.path.join(self.run_dir, f"best_{name}.pth")
 
         for ep in range(epochs):
             self.model.train()
@@ -499,7 +499,7 @@ class Trainer95TryEMA:
             if improved:
                 best_r2 = val_m["R2"]
                 bad = 0
-                self._save_best_state(best_path)
+                self._save_best_state(stage_best_path)
             else:
                 bad += 1
 
@@ -520,9 +520,9 @@ class Trainer95TryEMA:
                 print(f"Early stop {name} at ep={ep}, best_R2={best_r2:.6f}")
                 break
 
-        self.model.load_state_dict(torch_load_state_dict(best_path, map_location=self.device))
+        self.model.load_state_dict(torch_load_state_dict(stage_best_path, map_location=self.device))
         self._sync_ema_to_model()
-        return best_path, best_r2
+        return stage_best_path, best_r2
 
     def train(self):
         # S1
@@ -556,26 +556,29 @@ class Trainer95TryEMA:
 
         self.model.load_state_dict(torch_load_state_dict(path, map_location=self.device))
         self._sync_ema_to_model()
-        torch.save(self.model.state_dict(), self.best_path)
+
+        # 修改这里：保存最终权重时使用 self.model_path (即 trained_model.pth)
+        torch.save(self.model.state_dict(), self.model_path)
 
         final_info = {
             "CONV_KERNELS": list(self.model.conv_kernels),
             "CHOSEN_STAGE": name,
             "VAL": val_best,
-            "best_model_path": self.best_path
+            "trained_model_path": self.model_path  # 也同步改了 JSON 里记录的字段名
         }
         with open(self.final_metrics_path, "w", encoding="utf-8") as f:
             json.dump(final_info, f, ensure_ascii=False, indent=2)
 
-        print("\n===== BEST MODEL METRICS (VALIDATION) =====")
+        # 打印日志同步修改
+        print("\n===== TRAINED MODEL METRICS (VALIDATION) =====")
         print(f"CONV_KERNELS: {self.model.conv_kernels}")
         print(f"CHOSEN: {name}")
         print("VAL :", json.dumps(val_best, ensure_ascii=False))
         print(f"\nRun dir: {self.run_dir}")
-        print(f"Best model: {self.best_path}")
+        print(f"Trained model: {self.model_path}")
 
         with open(self.log_path, "a", encoding="utf-8") as f:
-            f.write("\n===== BEST MODEL METRICS (VALIDATION) =====\n")
+            f.write("\n===== TRAINED MODEL METRICS (VALIDATION) =====\n")
             f.write(f"CONV_KERNELS: {self.model.conv_kernels}\n")
             f.write(f"CHOSEN: {name}\n")
             f.write("VAL : " + json.dumps(val_best, ensure_ascii=False) + "\n")
@@ -608,14 +611,27 @@ if __name__ == "__main__":
             batch_size=256,
             hidden_size=256,
             dropout_rate=0.2,
-            lr_s1=1e-3, wd=1e-3, epochs_s1=160, patience_s1=25,
-            lr_s2=1e-4, epochs_s2=80, patience_s2=15,
-            lr_s3=3e-5, epochs_s3=40, patience_s3=10,
+
+            lr_s1=1e-3,
+            wd=1e-3,
+            epochs_s1=160,
+            patience_s1=25,
+
+            lr_s2=1e-4,
+            epochs_s2=80,
+            patience_s2=15,
+
+            lr_s3=3e-5,
+            epochs_s3=40,
+            patience_s3=10,
+
             normalize_extra=True,
             use_amp=True,
             num_workers=2,
             gc_bins=8,
+
             conv_kernels=ks,
+
             use_ema=True,
             ema_decay=0.999,
         )
@@ -626,6 +642,7 @@ if __name__ == "__main__":
             "run_dir": run_dir,
         })
 
+    # 根据 VAL_R2 进行降序排序
     summary = sorted(summary, key=lambda x: x["VAL_R2"], reverse=True)
 
     print("\n=========== SUMMARY (sorted by VAL R2) ===========")
