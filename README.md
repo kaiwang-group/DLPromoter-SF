@@ -2,9 +2,9 @@
 
 ## Overview
 
-```DLPromoter-SF``` is a deep learning approach that combines sequence and statistical features to predict promoter strength in Saccharomyces cerevisiae. The method utilizes both one-hot encoding and statistical feature encoding as inputs to extract sequence information, subsequently employing a three-stage training process and ensemble learning for final prediction.
+```DLPromoter-SF``` is a deep learning-based approach integrating biological statistical features, which can predict the promoter strength of Saccharomyces cerevisiae according to the input base sequences，and can be used for promoter screening and design in microbial cells such as Saccharomyces cerevisiae, which can accelerate designs of microbial cell factories and contribute to the development of intelligent biomanufacturing.
 
-```DLPromoter-SF``` consists of three modules: the Sequence Feature Extraction Module,  Statistical Feature Extraction Module,  Feature Fusion and Output Module.The Sequence Feature Extraction module utilizes a multi-scale Convolutional Neural Network (CNN) integrated with Squeeze-and-Excitation (SE) attention mechanisms, alongside a Transformer encoder also featuring SE attention, to capture sequence-level information. The Statistical Feature Extraction module leverages FeedForward networks (FFN) and a gating mechanism to process statistical data. Finally, the Fusion and Output module employs Feature-wise Linear Modulation (FiLM) to facilitate effective feature integration, using a Multi-Layer Perceptron (MLP) to generate the predicted promoter strength.
+```DLPromoter-SF``` consists of three modules: the Sequence Feature Extraction Module,  Statistical Feature Extraction Module,  Feature Fusion and Output Module.The Sequence Feature Extraction module leverages a multi-scale convolutional neural network and a Transformer encoder combined with SE attention mechanisms to extract local and global features of promoter sequences. The Statistical Feature Extraction module leverages a feedforward neural network and a gating mechanism are utilized to process four statistical features of promoter sequences, including the 3-mer frequency, the local GC content, the global GC content, and the longest A/T homopolymer length. Finally, the Fusion and Output module uses the FiLM mechanism and a multi-layer perceptron, it achieves feature fusion and outputs predicted strength.
 
 The overall framework of ```DLPromoter-SF``` is shown in the following figure.
 
@@ -14,12 +14,12 @@ The overall framework of ```DLPromoter-SF``` is shown in the following figure.
 ## Description
 
 The project includes the following core files and directory structure:
-- The folder `dataset` contains the directory for storing the raw reaction data utilized in the training, testing andof DLPromoter-SF.
-- The file `model.py` contains the definition of the multi-modal fusion model for DLPromoter-SF.
-- The file `train.py` contains the script for training the DLPromoter-SF model.
-- The file `test.py` contains the script for testing the DLPromoter-SF model.
-- The file `best_model.pth`、 `best_S1_full.pth`、`best_S2_tail_head.pth` and `best_S3_unfreeze_tiny.pth`contains the script for the best model pth of DLPromoter-SF.
-- The file `extra_norm.json` and `run_config.json` contains the script for the best model training configurations of DLPromoter-SF.
+- The folder `dataset` contains the directory for storing the raw reaction data utilized in the training, testing DLPromoter-SF.
+- The file `model.py` contains the the codes of the model for DLPromoter-SF.
+- The file `train.py` contains the codes for training the DLPromoter-SF model.
+- The file `test.py` contains the codes for testing the DLPromoter-SF model.
+- The file `trained_model.pth` contains the script for the trained model pth of DLPromoter-SF.
+- The file `extra_norm.json` and `run_config.json` contains the trained configurations and hyperparameters for DLPromoter-SF.
 
 ## System Requirements
 
@@ -41,18 +41,19 @@ scipy:  1.9.3
 
 ### Datasets
 
-The dataset of a large-scale dataset comprising 162,982 80-bp Saccharomyces cerevisiae promoter sequences and their respective strength is available [here](https://github.com/RK2627/PromoDGDE/tree/main/Data/SC).
-The dataset of a small-scale dataset comprising 63,468 80-bp Saccharomyces cerevisiae promoter sequences and their respective strength is available [here](https://github.com/1edv/evolution/blob/master/manuscript_code/model/reproduce_test_data_performance).
+- The folder `dataset` contains of 162,982 80-bp Saccharomyces cerevisiae promoter sequences and their respective strength,which are available [here](https://github.com/RK2627/PromoDGDE/tree/main/Data/SC).
+-  The folder `dataset` also contains three data subsets, which are divided based on similarity rankings according to the dataset of 162,982 80-bp Saccharomyces cerevisiae promoter sequences, namely `high_similarity` `medium_similarity` and `low_similarity`。Three subsets contains Saccharomyces cerevisiae promoter sequences and their respective strength together,which are available [here](https://github.com/1edv/evolution/blob/master/manuscript_code/model/reproduce_test_data_performance).
+
 
 
 ### Model Training
 We define the multimodal model for the **DLPromoter-SF** method in the file `model.py`, where:
 - The sequence feature extraction module is implemented based on the multi-scale Convolutional Neural Network (CNN) integrated with Squeeze-and-Excitation (SE) attention mechanisms and Transformer encoders with Squeeze-and-Excitation (SE) attention mechanisms.
 - The statistical feature extraction module is implemented based on the FeedForward networks (FFN) and a gating mechanism to process statistical data.
-The model can be trained using the file `train.py`.
+We can run the script of the file `train.py` to train DLPromoter-SF and get the results of  new `trained_model.pth`,`extra_norm.json` and `run_config.json` for testing.
 
 ### Model Testing
-- Run `test.py` using the new .pth and new .pth model weights:run_config.json, and extra_norm.json obtained from the `train.py` output.
+- we can run `test.py` using the new `trained_model.pth`,`extra_norm.json` and `run_config.json` which are obtained from the `train.py` to test and evaulate DLPromoter-SF.
 
 
 
