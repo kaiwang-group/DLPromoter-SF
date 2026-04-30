@@ -42,7 +42,8 @@ scipy:  1.9.3
 ### Datasets
 
 - The folder `dataset` contains of 162,982 80-bp Saccharomyces cerevisiae promoter sequences and their respective strength,which are available [here](https://github.com/RK2627/PromoDGDE/tree/main/Data/SC).
--  The folder `dataset` also contains three data subsets, which are divided based on similarity rankings according to the dataset of 162,982 80-bp Saccharomyces cerevisiae promoter sequences, namely `high_similarity` , `medium_similarity` and `low_similarity`。Three subsets contains Saccharomyces cerevisiae promoter sequences and their respective strength together,which are available [here](https://github.com/1edv/evolution/blob/master/manuscript_code/model/reproduce_test_data_performance).
+-  The folder `dataset` also contains three data subsets, which are divided based on similarity rankings according to the dataset of 162,982 80-bp Saccharomyces cerevisiae promoter sequences, namely `high_similarity` , `medium_similarity` and `low_similarity`。
+  Three subsets contains Saccharomyces cerevisiae promoter sequences and their respective strength together,which are available [here](https://github.com/1edv/evolution/blob/master/manuscript_code/model/reproduce_test_data_performance).
 
 
 
