@@ -47,13 +47,14 @@ scipy:  1.9.3
 
 
 ### Model Training
-We define the multimodal model for the **DLPromoter-SF** method in the file `model.py`, where:
+We define the model for the **DLPromoter-SF** method in the file `model.py`, where:
 - The sequence feature extraction module is implemented based on the multi-scale Convolutional Neural Network (CNN) integrated with Squeeze-and-Excitation (SE) attention mechanisms and Transformer encoders with Squeeze-and-Excitation (SE) attention mechanisms.
 - The statistical feature extraction module is implemented based on the FeedForward networks (FFN) and a gating mechanism to process statistical data.
+
 We can run the script of the file `train.py` to train DLPromoter-SF and get the results of  new `trained_model.pth`,`extra_norm.json` and `run_config.json` for testing.
 
 ### Model Testing
-- we can run `test.py` using the new `trained_model.pth`,`extra_norm.json` and `run_config.json` which are obtained from the `train.py` to test and evaulate DLPromoter-SF.
+We can run `test.py` using the new `trained_model.pth`,`extra_norm.json` and `run_config.json` which are obtained from the `train.py` to test and evaulate DLPromoter-SF.
 
 
 
