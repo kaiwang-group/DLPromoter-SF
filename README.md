@@ -17,9 +17,9 @@ There are totally one folder and six files, which are briefly described as below
 - The file `model.py` is the code script of ```DLPromoter-SF```.
 - The file `train.py` is the code script of training.
 - The file `test.py` is the code script of testing.
-- The file `trained_model.pth` contains the weights of the trained ```DLPromoter-SF```.
+- The file `trained_model.pth` contains the learned parameters of the trained ```DLPromoter-SF```.
 - The file `extra_norm.json` contains the normalization parameters of the trained ```DLPromoter-SF```. 
-- The file `run_config.json` contains the configurations and hyperparameters of the trained ```DLPromoter-SF```.
+- The file `run_config.json` contains the configurations and setting values of ```DLPromoter-SF```.
 
 ## System Requirements
 
@@ -41,8 +41,8 @@ scipy: 1.9.3
 
 ### Datasets
 
-- The folder `dataset` contains the files wrcprocess_train_data162982.csv and wrcprocess_test_data162982.csv, which are respectively the training and testing subsets of the 162,982 _saccharomyces cerevisiae_ promoter dataset.This dataset is also available in other sources,such as https://github.com/RK2627/PromoDGDE/tree/main/Data/SC.
-- The folder `dataset` contains the files which are divided based on the similarity rankings according to the dataset of 162,982  _saccharomyces cerevisiae_ promoter sequences, namely `high_similarity`,  `medium_similarity`, and `low_similarity`. Every subset contains 12,708  _saccharomyces cerevisiae_ promoter sequences, which are also available https://github.com/1edv/evolution/blob/master/manuscript_code/model/reproduce_test_data_performance.
+- The folder `dataset` contains the files `wrcprocess_train_data162982.csv` and `wrcprocess_test_data162982.csv`, which are respectively the training and testing subsets of the 162,982 _saccharomyces cerevisiae_ promoters dataset.This dataset is also available in other sources,such as https://github.com/RK2627/PromoDGDE/tree/main/Data/SC.
+- The folder `dataset` contains the files `high_similarity.csv`, `medium_similarity.csv`, and `low_similarity.csv`,which are respectively contains 12,708  _saccharomyces cerevisiae_ promoters dataset.This dataset is also available in other sources,such as https://github.com/1edv/evolution/blob/master/manuscript_code/model/reproduce_test_data_performance.
 
 
 
@@ -50,7 +50,7 @@ scipy: 1.9.3
 We can run the code script of `train.py` to train ```DLPromoter-SF```, which generates the files `trained_model.pth`, `extra_norm.json`, and `run_config.json`. 
 
 ### Model Testing
-We can run the file `test.py` to test and evaulate prediction performances of the trained ```DLPromoter-SF```. 
+We can run the file `test.py` to test and evaulate prediction performances of the trained ```DLPromoter-SF```.,where the files `trained_model.pth`, `extra_norm.json`, and `run_config.json` can be automatically loaded.
 
 
 
