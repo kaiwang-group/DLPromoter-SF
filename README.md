@@ -47,10 +47,10 @@ scipy: 1.9.3
 
 
 ### Model Training
-We can run the file `train.py` to train DLPromoter-SF, and get the results of `trained_model.pth`,`extra_norm.json`, and `run_config.json` for testing.
+We can run the file `train.py` to train DLPromoter-SF, and get the files `trained_model.pth`, `extra_norm.json`, and `run_config.json`. 
 
 ### Model Testing
-We can run `test.py` to test and evaulate the trained DLPromoter-SF. 
+We can run the file `test.py` to test and evaulate the trained DLPromoter-SF. 
 
 
 
