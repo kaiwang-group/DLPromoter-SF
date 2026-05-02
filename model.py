@@ -72,17 +72,13 @@ def _make_cnn_block(in_ch, out_ch, kernel_size, padding, use_se, se_reduction):
 
 
 class TransformerHybridSEFusionModel(nn.Module):
-    """
-    默认行为：
-    - 2层 Transformer
-    - 保持 forward 接口不变
-    - 保持训练代码可直接复用
 
-    可选消融开关：
-    - use_se=False
-    - use_extra=False
-    - use_transformer=False
-    """
+
+    # 可选消融开关：
+    # - use_se=False
+    # - use_extra=False
+    # - use_transformer=False
+
     def __init__(
         self,
         input_size: int = 4,
@@ -92,7 +88,7 @@ class TransformerHybridSEFusionModel(nn.Module):
         se_reduction: int = 16,
         extra_feat_dim: int = 76,
         use_extra: bool = True,
-        conv_kernels=(17, 13, 9),
+        conv_kernels=(13, 11, 9),
         use_se: bool = True,
         use_transformer: bool = True,
         transformer_layers: int = 2,   # 这里默认改成2层
