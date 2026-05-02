@@ -20,9 +20,7 @@ from scipy.stats import pearsonr, spearmanr
 from model import TransformerHybridSEFusionModel
 
 
-# -----------------------
-# Utils
-# -----------------------
+
 def set_seed(seed: int = 42):
     random.seed(seed)
     np.random.seed(seed)
@@ -78,7 +76,7 @@ def torch_load_state_dict(path: str, map_location="cpu"):
 
 
 # -----------------------
-# Extra features (76)
+# Statistical features (76)(额外的统计特征）
 # -----------------------
 _BASES = ["a", "c", "g", "t"]
 _KMER3 = [a + b + c for a in _BASES for b in _BASES for c in _BASES]
@@ -152,7 +150,7 @@ def build_extra_features(seq: str, n_bins: int = 8):
 
 
 # -----------------------
-# Metrics
+# Metrics（评估指标）
 # -----------------------
 def compute_metrics(y_true: np.ndarray, y_pred: np.ndarray):
     y_true = y_true.astype(np.float64).ravel()
@@ -182,7 +180,7 @@ def compute_metrics(y_true: np.ndarray, y_pred: np.ndarray):
 
 
 # -----------------------
-# Losses
+# Losses（损失）
 # -----------------------
 class WeightedMSELoss(nn.Module):
     def __init__(self, weight: float = 10.0):
@@ -270,7 +268,7 @@ def ema_scope(model: nn.Module, ema: ModelEMA = None):
 
 
 # -----------------------
-# Trainer
+# Trainer（训练配置器）
 # -----------------------
 class Trainer95TryEMA:
     def __init__(
@@ -549,7 +547,7 @@ class Trainer95TryEMA:
         )
         val3, _, _ = self.evaluate(self.val_loader, use_ema=False)
 
-        # choose best by VAL R2
+        # choose best by VAL R2（通过验证集的R2选择最好的模型）
         cands = [("S1", p1, val1), ("S2", p2, val2), ("S3", p3, val3)]
         chosen = max(cands, key=lambda x: x[2]["R2"])
         name, path, val_best = chosen
@@ -557,14 +555,14 @@ class Trainer95TryEMA:
         self.model.load_state_dict(torch_load_state_dict(path, map_location=self.device))
         self._sync_ema_to_model()
 
-        # 修改这里：保存最终权重时使用 self.model_path (即 trained_model.pth)
+
         torch.save(self.model.state_dict(), self.model_path)
 
         final_info = {
             "CONV_KERNELS": list(self.model.conv_kernels),
             "CHOSEN_STAGE": name,
             "VAL": val_best,
-            "trained_model_path": self.model_path  # 也同步改了 JSON 里记录的字段名
+            "trained_model_path": self.model_path
         }
         with open(self.final_metrics_path, "w", encoding="utf-8") as f:
             json.dump(final_info, f, ensure_ascii=False, indent=2)
@@ -587,8 +585,10 @@ class Trainer95TryEMA:
 
 
 if __name__ == "__main__":
-    TRAIN_CSV = "/data/stu1/wrc3_pycharm_project/PromoDGDE_main/Data/SC/wrcprocess_train_data162982.csv"
-    SAVE_ROOT = "/data/stu1/wrc3_pycharm_project/PromoDGDE_main/wrc_63468huigui/results_162982/"
+
+    TRAIN_CSV = "./dataset/wrcprocess_train_data162982.csv"
+
+    SAVE_ROOT = "./results/"
 
     KERNEL_SETS = [
         # (17, 13, 9),
@@ -606,7 +606,7 @@ if __name__ == "__main__":
             save_root=SAVE_ROOT,
             run_name="high_similarity_train",
             seed=42,
-            gpu_id=1,
+            gpu_id=0,
             val_ratio=0.1,
             batch_size=256,
             hidden_size=256,
@@ -642,7 +642,7 @@ if __name__ == "__main__":
             "run_dir": run_dir,
         })
 
-    # 根据 VAL_R2 进行降序排序
+
     summary = sorted(summary, key=lambda x: x["VAL_R2"], reverse=True)
 
     print("\n=========== SUMMARY (sorted by VAL R2) ===========")
