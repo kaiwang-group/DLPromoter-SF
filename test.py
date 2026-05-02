@@ -10,28 +10,28 @@ from sklearn.metrics import (
 )
 from scipy.stats import pearsonr, spearmanr
 
-# 导入你的模型架构 (确保 model.py 在同级目录或 Python 环境变量中)
+# 导入你的模型架构（Import your model architecture）
 from model import TransformerHybridSEFusionModel
 
 # ==========================================
-# 1. 路径与硬件配置 (请确认这里的路径完全正确)
+# 1. 路径与硬件配置 (Path and Hardware Configuration)
 # ==========================================
-GPU_ID = 1
-MODEL_PATH = "/data/stu1/wrc3_pycharm_project/PromoDGDE_main/wrc_63468huigui/CNN_TF222/results/combine162982_ema_k13_11_9_20260314_141632/best_model.pth"
-CONFIG_PATH = "/data/stu1/wrc3_pycharm_project/PromoDGDE_main/wrc_63468huigui/CNN_TF222/results/combine162982_ema_k13_11_9_20260314_141632/run_config.json"
-NORM_PATH = "/data/stu1/wrc3_pycharm_project/PromoDGDE_main/wrc_63468huigui/CNN_TF222/results/combine162982_ema_k13_11_9_20260314_141632/extra_norm.json"
+GPU_ID = 0  # 建议改为 0，适应单卡用户
+MODEL_PATH = "./trained_model.pth"
+CONFIG_PATH = "./run_config.json"
+NORM_PATH = "./extra_norm.json"
 
 # 注意替换为真实的测试集 CSV 路径
-TEST_CSV = "/data/stu1/wrc3_pycharm_project/PromoDGDE_main/wrc_63468huigui/DLPromoter-SF/dataset/wrcprocess_test_data162982.csv"
-# TEST_CSV = "/data/stu1/wrc3_pycharm_project/PromoDGDE_main/wrc_63468huigui/DLPromoter-SF/dataset/medium_similarity.csv"
-# TEST_CSV = "/data/stu1/wrc3_pycharm_project/PromoDGDE_main/wrc_63468huigui/DLPromoter-SF/dataset/high_similarity.csv"
-# TEST_CSV = "/data/stu1/wrc3_pycharm_project/PromoDGDE_main/wrc_63468huigui/DLPromoter-SF/dataset/low_similarity.csv"
+TEST_CSV = "./dataset/wrcprocess_test_data162982.csv"
+# TEST_CSV = "./dataset/medium_similarity.csv"
+# TEST_CSV = "./dataset/high_similarity.csv"
+# TEST_CSV = "./dataset/low_similarity.csv"
 BATCH_SIZE = 256
 NUM_WORKERS = 2
 
 
 # ==========================================
-# 2. 数据处理工具函数 (与训练集保持绝对一致)
+# 2. 数据处理工具函数(Data processing utility functions）
 # ==========================================
 def clean_seq(s: str) -> str:
     s = s.strip().lower()
@@ -70,7 +70,7 @@ def load_csv(path: str):
     return seqs, np.asarray(ys, dtype=np.float32)
 
 
-# ---- 统计特征计算 (76维) ----
+# ---- 统计特征计算 (76维) ----Statistical Feature Calculation (76 dimensions)
 _BASES = ["a", "c", "g", "t"]
 _KMER3 = [a + b + c for a in _BASES for b in _BASES for c in _BASES]
 _KMER3_TO_IDX = {k: i for i, k in enumerate(_KMER3)}
@@ -137,39 +137,39 @@ def compute_metrics(y_true, y_pred):
 
 
 # ==========================================
-# 3. 主测试逻辑
+# 3. 主测试逻辑（Main test logic）
 # ==========================================
 def main():
     device = torch.device(f"cuda:{GPU_ID}" if torch.cuda.is_available() else "cpu")
     print(f"[*] 使用设备: {device}")
 
-    # 1. 加载运行配置文件
+    # 1. 加载运行配置文件 (Load runtime configuration file)
     with open(CONFIG_PATH, "r", encoding="utf-8") as f:
         run_cfg = json.load(f)
     print(f"[*] 加载配置文件成功 (max_len={run_cfg['max_len']}, conv_kernels={run_cfg['conv_kernels']})")
 
-    # 2. 加载归一化参数
+    # 2. 加载归一化参数 (Load normalization parameters)
     with open(NORM_PATH, "r", encoding="utf-8") as f:
         extra_norm = json.load(f)
     mu = np.array(extra_norm["mu"], dtype=np.float32)
     sd = np.array(extra_norm["sd"], dtype=np.float32)
     print(f"[*] 加载统计特征归一化参数成功")
 
-    # 3. 读取并处理测试集数据
+    # 3. 读取并处理测试集数据 (Read and process test set data)
     print(f"[*] 正在处理测试集数据...")
     seq_test, y_test = load_csv(TEST_CSV)
 
-    # 构建输入矩阵
+    # 构建输入矩阵 (Build input matrix)
     X_test_list = [one_hot_encode(clean_seq(s)) for s in seq_test]
-    # 【关键】必须使用训练时的 max_len
+    # 【关键】必须使用训练时的 max_len ([Key] Must use the max_len from training)
     X_test = np.stack([pad_or_trunc(m, run_cfg["max_len"]) for m in X_test_list], axis=0)
 
-    # 构建并归一化统计特征
+    # 构建并归一化统计特征 (Build and normalize statistical features)
     F_test = np.stack([build_extra_features(s, n_bins=run_cfg["gc_bins"]) for s in seq_test], axis=0)
-    # 【关键】使用训练集的 mu 和 sd 进行标准化
+    # 【关键】使用训练集的 mu 和 sd 进行标准化 ([Key] Use mu and sd from the training set for standardization)
     F_test = (F_test - mu) / sd
 
-    # 转换为 Tensor 并创建 DataLoader
+    # 转换为 Tensor 并创建 DataLoader (Convert to Tensor and create DataLoader)
     test_loader = DataLoader(
         TensorDataset(
             torch.tensor(X_test, dtype=torch.float32),
@@ -179,18 +179,18 @@ def main():
         batch_size=BATCH_SIZE, shuffle=False, num_workers=NUM_WORKERS, pin_memory=True
     )
 
-    # 4. 初始化模型 (参数从 run_cfg 读取，保证结构百分百一致)
+    # 4. 初始化模型 (参数从 run_cfg 读取，保证结构百分百一致) (Initialize model: parameters read from run_cfg to ensure 100% structural consistency)
     model = TransformerHybridSEFusionModel(
         input_size=4,
         hidden_size=run_cfg["hidden_size"],
         output_size=1,
-        dropout_rate=0.0,  # 推理阶段关闭 dropout
+        dropout_rate=0.0,  # 推理阶段关闭 dropout (Disable dropout during inference phase)
         extra_feat_dim=run_cfg["extra_feat_dim"],
         use_extra=run_cfg["use_extra"],
         conv_kernels=tuple(run_cfg["conv_kernels"]),
     ).to(device)
 
-    # 5. 加载最佳权重
+    # 5. 加载最佳权重 (Load best weights)
     try:
         state_dict = torch.load(MODEL_PATH, map_location=device, weights_only=True)
     except TypeError:
@@ -200,12 +200,12 @@ def main():
     model.eval()
     print(f"[*] 成功加载模型权重: {MODEL_PATH}\n")
 
-    # 6. 开始预测与评估
+    # 6. 开始预测与评估 (Start prediction and evaluation)
     preds, trues = [], []
     with torch.no_grad():
         for x, feat, y in test_loader:
             x, feat, y = x.to(device), feat.to(device), y.to(device).view(-1)
-            # 根据是否使用混合精度推理
+            # 根据是否使用混合精度推理 (Depending on whether mixed precision inference is used)
             if hasattr(torch, "amp"):
                 with torch.amp.autocast("cuda"):
                     out = model(x, feat).view(-1)
@@ -219,7 +219,7 @@ def main():
     y_true = np.concatenate(trues).ravel()
     y_pred = np.concatenate(preds).ravel()
 
-    # 计算并打印指标
+    # 计算并打印指标 (Calculate and print metrics)
     metrics = compute_metrics(y_true, y_pred)
 
     print("========================================")
