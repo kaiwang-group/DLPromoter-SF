@@ -1,8 +1,8 @@
 {
-  "run_dir": "/data/stu1/wrc3_pycharm_project/PromoDGDE_main/wrc_63468huigui/CNN_TF222/results/combine162982_ema_k13_11_9_20260314_141632",
-  "device": "cuda:1",
-  "train_csv": "/data/stu1/wrc3_pycharm_project/PromoDGDE_main/Data/SC/wrcprocess_train_data162982.csv",
-  "test_csv": "/data/stu1/wrc3_pycharm_project/PromoDGDE_main/Data/SC/wrcprocess_test_data162982.csv",
+  "run_dir": ".",
+  "device": "cuda:0",
+  "train_csv": "./dataset/wrcprocess_train_data162982.csv",
+  "test_csv": "./dataset/wrcprocess_test_data162982.csv",
   "max_len": 80,
   "hidden_size": 256,
   "dropout_rate": 0.2,
